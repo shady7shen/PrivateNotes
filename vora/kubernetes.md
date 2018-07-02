@@ -372,4 +372,4 @@ echo '{ "key": { "algo": "rsa", "size":2048} }' | cfssl gencert -ca=ca.crt -ca-k
 mv kubelet.pem kubelet.crt && mv kubelet-key.pem kubelet.key
 ```
 
-ok. here is something new.
+local branch modified.
