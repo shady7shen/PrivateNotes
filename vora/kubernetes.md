@@ -1,3 +1,41 @@
+- [Linux Preparation](#linux-preparation)
+  - [change machine id](#change-machine-id)
+  - [install dependencies](#install-dependencies)
+  - [install docker](#install-docker)
+  - [install kubernetes binaries](#install-kubernetes-binaries)
+  - [setenforce util](#setenforce-util)
+  - [install crictl (optional)](#install-crictl-optional)
+  - [can be added to ~/.profile for proxy setting](#can-be-added-to-profile-for-proxy-setting)
+- [Start of Cluster Installation](#start-of-cluster-installation)
+  - [init the cluster](#init-the-cluster)
+  - [configure kubectl with default admin user](#configure-kubectl-with-default-admin-user)
+  - [install calico (1)](#install-calico-1)
+  - [prepare calico etcd certs](#prepare-calico-etcd-certs)
+  - [install calico (2)](#install-calico-2)
+  - [kubernetes api server parameters is located in](#kubernetes-api-server-parameters-is-located-in)
+- [Post Installation](#post-installation)
+  - [install kubernetes dashboard](#install-kubernetes-dashboard)
+  - [prepare a user to be used with kubernetes dashboard](#prepare-a-user-to-be-used-with-kubernetes-dashboard)
+  - [generate the join command for cluster](#generate-the-join-command-for-cluster)
+- [untaint the master node so that pod can be started on this node](#untaint-the-master-node-so-that-pod-can-be-started-on-this-node)
+  - [kubectl logs showing Forbidden error](#kubectl-logs-showing-forbidden-error)
+- [Appendix](#appendix)
+  - [retrieve server ssl certificate](#retrieve-server-ssl-certificate)
+  - [etcdctl check (do with care due to different etcd version locally and in kubernetes container)](#etcdctl-check-do-with-care-due-to-different-etcd-version-locally-and-in-kubernetes-container)
+  - [install crictl tool](#install-crictl-tool)
+  - [install hadoop client](#install-hadoop-client)
+  - [add insecure docker registry server by creating/modifying `/etc/docker/daemon.json`](#add-insecure-docker-registry-server-by-creatingmodifying-etcdockerdaemonjson)
+  - [some linux commands](#some-linux-commands)
+  - [journal log](#journal-log)
+  - [kubectl command collection](#kubectl-command-collection)
+  - [delete Error pods in batch](#delete-error-pods-in-batch)
+- [SSL Certificate Preparation](#ssl-certificate-preparation)
+  - [use openssl](#use-openssl)
+    - [Example](#example)
+  - [Use cfssl](#use-cfssl)
+    - [Pre-requisite GO 1.8+](#pre-requisite-go-18)
+    - [install cfssl](#install-cfssl)
+    - [generate certificate / key pair signed by a CA](#generate-certificate--key-pair-signed-by-a-ca)
 
 
 
@@ -371,5 +409,3 @@ mv apiserver-etcd-client.pem ../apiserver-etcd-client.crt && mv apiserver-etcd-c
 echo '{ "key": { "algo": "rsa", "size":2048} }' | cfssl gencert -ca=ca.crt -ca-key=ca.key -cn="/CN=kube-etcd-peer" -hostname="ub2,localhost,10.160.193.201,127.0.0.1" - | cfssljson -bare kubelet
 mv kubelet.pem kubelet.crt && mv kubelet-key.pem kubelet.key
 ```
-
-Ok. This is local.
