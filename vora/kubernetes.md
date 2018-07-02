@@ -1,6 +1,7 @@
 
 
 
+
 # Linux Preparation
 ## change machine id
 ```
@@ -371,5 +372,3 @@ mv apiserver-etcd-client.pem ../apiserver-etcd-client.crt && mv apiserver-etcd-c
 echo '{ "key": { "algo": "rsa", "size":2048} }' | cfssl gencert -ca=ca.crt -ca-key=ca.key -cn="/CN=kube-etcd-peer" -hostname="ub2,localhost,10.160.193.201,127.0.0.1" - | cfssljson -bare kubelet
 mv kubelet.pem kubelet.crt && mv kubelet-key.pem kubelet.key
 ```
-
-Ok. This is local.
