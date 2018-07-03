@@ -29,13 +29,18 @@
   - [journal log](#journal-log)
   - [kubectl command collection](#kubectl-command-collection)
   - [delete Error pods in batch](#delete-error-pods-in-batch)
-- [SSL Certificate Preparation](#ssl-certificate-preparation)
-  - [use openssl](#use-openssl)
-    - [Example](#example)
-  - [Use cfssl](#use-cfssl)
-    - [Pre-requisite GO 1.8+](#pre-requisite-go-18)
-    - [install cfssl](#install-cfssl)
-    - [generate certificate / key pair signed by a CA](#generate-certificate--key-pair-signed-by-a-ca)
+  - [SSL Certificate Preparation](#ssl-certificate-preparation)
+    - [use openssl](#use-openssl)
+      - [Example](#example)
+    - [Use cfssl](#use-cfssl)
+      - [Pre-requisite GO 1.8+](#pre-requisite-go-18)
+      - [install cfssl](#install-cfssl)
+      - [generate certificate / key pair signed by a CA](#generate-certificate--key-pair-signed-by-a-ca)
+  - [Kubernetes Persistence Volume Template](#kubernetes-persistence-volume-template)
+  - [busybox pod template](#busybox-pod-template)
+  - [openjdk pod template](#openjdk-pod-template)
+  - [docker registry pod template](#docker-registry-pod-template)
+  - [hdfs yaml image](#hdfs-yaml-image)
 
 
 
@@ -51,7 +56,7 @@ cp /etc/machine-id /var/lib/dbus/machine-id
 
 ## install dependencies
 ```
-apt-get update && apt-get install -y apt-transport-https curl selinux-utils
+apt-get update && apt-get install -y apt-transport-https curl selinux-utils rpcbind nfs-kernel-server nfs-common libnfsidmap2
 ```
 
 ## install docker
@@ -345,8 +350,8 @@ http://aclisp.github.io/blog/2015/08/25/kubernetes-startup.html
 
 
 
-# SSL Certificate Preparation
-## use openssl
+## SSL Certificate Preparation
+### use openssl
 generate private key 
 ```
 openssl genrsa -des3 -out server.key 2048
@@ -369,7 +374,7 @@ openssl x509 -req -days 3650 -in server.csr -CA ca.crt -CAkey ca.key -set_serial
 
 openssl x509 -req -extfile <(printf "subjectAltName=DNS:example.com,DNS:www.example.com") -days 365 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt
 ```
-### Example
+#### Example
 etcd certificates
 ```
 openssl req -nodes -newkey rsa:2048 -keyout server.key -out server.csr -subj "/CN=kube-etcd"
@@ -381,19 +386,19 @@ openssl x509 -req -days 3650 -in peer.csr -CA ca.crt -CAkey ca.key -set_serial 1
 openssl req -nodes -newkey rsa:2048 -keyout healthcheck-client.key -out healthcheck-client.csr -subj "/O=system:masters, /CN=kube-etcd-healthcheck-client"
 openssl x509 -req -days 3650 -in healthcheck-client.csr -CA ca.crt -CAkey ca.key -set_serial 19820528002 -out healthcheck-client.crt
 ```
-## Use cfssl
-### Pre-requisite GO 1.8+
+### Use cfssl
+#### Pre-requisite GO 1.8+
 ```
 add-apt-repository ppa:gophers/archive
 apt-get update
 apt-get install golang-1.10-go
 ```
-### install cfssl
+#### install cfssl
 ```
 go get -u github.com/cloudflare/cfssl/cmd/cfssl
 ```
 
-### generate certificate / key pair signed by a CA
+#### generate certificate / key pair signed by a CA
 ```
 echo '{ "key": { "algo": "rsa", "size":2048} }' | cfssl gencert -ca=ca.crt -ca-key=ca.key -cn="/CN=kube-etcd" -hostname="ub,localhost,10.160.205.56,127.0.0.1" - | cfssljson -bare server
 mv server.pem server.crt && mv server-key.pem server.key
@@ -409,4 +414,192 @@ mv apiserver-etcd-client.pem ../apiserver-etcd-client.crt && mv apiserver-etcd-c
 
 echo '{ "key": { "algo": "rsa", "size":2048} }' | cfssl gencert -ca=ca.crt -ca-key=ca.key -cn="/CN=kube-etcd-peer" -hostname="ub2,localhost,10.160.193.201,127.0.0.1" - | cfssljson -bare kubelet
 mv kubelet.pem kubelet.crt && mv kubelet-key.pem kubelet.key
+```
+
+## Kubernetes Persistence Volume Template
+```
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: datadir-vora-consul-0
+spec:
+  capacity:
+    storage: 25Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/storage/kubernetes/pv"
+```
+## busybox pod template
+busybox.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    command:
+      - sleep
+      - "3600"
+    imagePullPolicy: IfNotPresent
+    name: busybox
+  restartPolicy: Always
+  nodeSelector:
+    intRole: minion
+```
+
+## openjdk pod template
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: openjdk
+spec:
+  containers:
+  - image: openjdk:10
+    command:
+      - sleep
+      - "3600"
+    imagePullPolicy: IfNotPresent
+    name: busybox
+    volumeMounts:
+      - name: data
+        mountPath: /root/data
+  volumes:
+    - name: data
+      hostPath:
+        path: /storage/kubernetes/hadoopcli
+        type: Directory
+  restartPolicy: Always
+  nodeSelector:
+    intRole: minion
+```
+
+## docker registry pod template 
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: docker-registry
+  labels:
+    app: docker
+    type: registry
+spec:
+  replicas: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: docker
+        type: registry
+    spec:
+      containers:
+        - name: docker-registry
+          image: registry:2
+          command:
+          - /bin/registry
+          - serve
+          - /etc/docker/registry/config.yml
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/registry/
+      volumes:
+        - name: data
+          hostPath:
+            path: /storage/docker/registry
+            type: Directory
+      nodeSelector:
+        intRole : master
+```
+## hdfs yaml image
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: hdfs-namenode
+spec:
+  ports:
+    - name: client
+      port: 8020
+  selector:
+    app: hdfs
+    type: namenode
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hdfs-namenode
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hdfs
+        type: namenode
+    spec:
+      volumes:
+        - name: data
+          hostPath:
+            path: /storage/kubernetes/hdfs/name
+            type: Directory
+      containers:
+        - name: namenode
+          image: uhopper/hadoop-namenode:2.7.2
+          env:
+            - name: CLUSTER_NAME
+              value: hadoop
+            - name: HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check
+              value: "false"
+            - name: MULTIHOMED_NETWORK
+              value: "0"
+          ports:
+            - containerPort: 50070
+            - containerPort: 8020
+          volumeMounts:
+            - mountPath: /hadoop/dfs/data
+              name: data
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hdfs-datanode
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hdfs
+        type: datanode
+    spec:
+      volumes:
+        - name: data
+          hostPath:
+            path: /storage/kubernetes/hdfs/data
+            type: Directory
+      containers:
+        - name: datanode
+          image: uhopper/hadoop-datanode:2.7.2
+          env:
+            - name: CORE_CONF_fs_defaultFS
+              value: hdfs://hdfs-namenode:8020
+            - name: HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check
+              value: "false"
+          ports:
+            - containerPort: 50075
+            - containerPort: 50010
+            - containerPort: 50020
+          volumeMounts:
+            - mountPath: /hadoop/dfs/data
+              name: data
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
 ```
