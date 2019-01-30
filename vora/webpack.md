@@ -47,6 +47,9 @@ devServer: {
   host: '0.0.0.0',
   port: 8080
 }
+```
+
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE5ODEyNTU0NjAsMTU4Mzc4MTA0MF19
+eyJoaXN0b3J5IjpbMjUwOTgzMTI4LC0xOTgxMjU1NDYwLDE1OD
+M3ODEwNDBdfQ==
 -->
