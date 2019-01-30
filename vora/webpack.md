@@ -1,4 +1,5 @@
 # Webpack
+(https://webpack.js.org/guides/asset-management/#loading-css)
 ## Installation
 
     npm install --save-dev webpack webpack-cli
@@ -41,15 +42,27 @@ npm install --save-dev webpack-dev-server
 ```
 add in **webpackage.config.js**
 ```
-devServer: {
-  contentBase: path.resolve(__dirname, 'dist'),
-  disableHostCheck : true,
-  host: '0.0.0.0',
-  port: 8080
-}
+...
+const webpack = require('webpack');  //required for hot module replacement
+
+module.exports = {
+...
+  devServer: {
+    public: 'localhost:30080',   //the url for the browser to allow NAT or reverse proxy
+    contentBase: path.resolve(__dirname, 'dist'),
+    disableHostCheck: true,
+    host: '0.0.0.0',
+    port: 8080,
+    hot: true   // required for hot module replacement
+  }
+  ,plugins: [
+    new webpack.HotModuleReplacementPlugin()  //required for hot module replacement
+  ]
+};
+
 ```
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjUwOTgzMTI4LC0xOTgxMjU1NDYwLDE1OD
-M3ODEwNDBdfQ==
+eyJoaXN0b3J5IjpbLTY5NDI5NjI4NCwtMTk4MTI1NTQ2MCwxNT
+gzNzgxMDQwXX0=
 -->
