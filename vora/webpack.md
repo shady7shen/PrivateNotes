@@ -35,7 +35,54 @@ module: {
 	]
 }
 ```
- 
+ ### Loading Images
+ ```
+ npm i -D file-loader
+ ```
+ add in **webpack.config.js**
+ ```
+ {
+   test : /\.(jpg|jpeg|png|gif|svg)$/,
+   use: [ 'file-loader']
+ }
+ ```
+ same loader can be used to load fonts as well
+ ```
+ test: /\.(woff|woff2|eot|ttf|otf)$/
+ ```
+ ### loading Data
+####  CSV
+ ```
+ npm i -D csv-loader papaparser
+ ```
+ ```
+ {
+	 test : /\.csv$/,
+	 loader: 'csv-loader',
+	 options : {    // more options in papaparser documentation
+	   dynamicTyping: true,
+	   header: true,
+	   skipEmptyLines: true
+	 }
+```
+after which one can import csv as json objects as,
+```
+import data from './a.csv';
+```
+
+#### XML
+```
+npm i -D xml-loader
+```
+```
+{
+	test : /\.xml$/,
+	loader : 'xml-loader',
+	options : {
+	  explicitArray: false
+	}
+}
+```	 
 ## Webpack dev server
 ```
 npm install --save-dev webpack-dev-server
@@ -63,6 +110,6 @@ module.exports = {
 ```
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY5NDI5NjI4NCwtMTk4MTI1NTQ2MCwxNT
-gzNzgxMDQwXX0=
+eyJoaXN0b3J5IjpbMTgxNDU4NTk5MCwtNjk0Mjk2Mjg0LC0xOT
+gxMjU1NDYwLDE1ODM3ODEwNDBdfQ==
 -->
