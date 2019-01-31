@@ -83,6 +83,15 @@ npm i -D xml-loader
 	}
 }
 ```	 
+## Development
+### development mode
+```
+mode : 'development'
+```
+### Source Map
+```
+devtool : 'inline-source-map'
+```
 ## Webpack dev server
 ```
 npm install --save-dev webpack-dev-server
@@ -110,6 +119,6 @@ module.exports = {
 ```
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTgxNDU4NTk5MCwtNjk0Mjk2Mjg0LC0xOT
+eyJoaXN0b3J5IjpbMTE1MjMwNTQ2MywtNjk0Mjk2Mjg0LC0xOT
 gxMjU1NDYwLDE1ODM3ODEwNDBdfQ==
 -->
