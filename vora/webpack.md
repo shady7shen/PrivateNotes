@@ -1,5 +1,6 @@
 [Web Pack](#webpack)
-	[Installation](#Installation)
+- [Installation](#Installation)
+-- [Basics](#basics)
 
 
 # Webpack
