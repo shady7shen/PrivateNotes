@@ -1,8 +1,3 @@
-[Web Pack](#webpack)
-- [Installation](#installation)
-	- [Basics](#basics)
-
-
 # Webpack
 [documentation](https://webpack.js.org/guides/asset-management/#loading-css)
 ## Installation
