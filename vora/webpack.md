@@ -1,5 +1,5 @@
 # Webpack
-(https://webpack.js.org/guides/asset-management/#loading-css)
+[documentation](https://webpack.js.org/guides/asset-management/#loading-css)
 ## Installation
 
     npm install --save-dev webpack webpack-cli
@@ -117,10 +117,7 @@ module.exports = {
 };
 
 ```
-html dfadf
-*[html]: http://www.google.com
-![what](https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=1667028310,2267669185&fm=173&app=25&f=JPEG?w=218&h=146&s=F7CB68B444743182108D07E40300E03C)
-[this is a link](ln)
+
 
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbMTE1MjMwNTQ2MywtNjk0Mjk2Mjg0LC0xOT
