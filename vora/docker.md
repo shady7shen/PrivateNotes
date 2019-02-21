@@ -17,6 +17,38 @@ shady@osboxes:/etc/docker$ cat daemon.json
 sudo groupadd docker
 sudo gpasswd -a $USER docker
 newgrp docker
+
+# Docker Commandline
+## Working with Images
+### List
+`docker images -a --no-trunc [repository[:tag]]`
+### Pull
+```
+docker pull [options] NAME[:tag|@digest]
+--all-tags,-a download all tagged images in the repository
+--disable-content-trust (default) skip image verification 
+```
+It's also possible to manually specify the path of a docker hub. For example, the following pulls image `/testing/test-image` from hub `myregistry.local:5000`
+```
+docker pull myregistry.local:5000/testing/test-image
+```
+### Import File System as an Image
+```
+docker import [options] file|URL|- [Repository[:tag]]
+
+--change, -c apply Dockerfile instruction, supporting instructions: CMD | ENTRYPOINT | ENV | EXPOSE | ONBUILD | USER | VOLUME | WORKDIR
+--message, -m set commit message for imported image
+
+URL can point to an archive (.tar, .tar.gz, .tgz, .bzip, .tar.xz, or .txz) containing a file system or a single file on the Docker host
+-   is instructing docker to read data from STDIN
+```
+
+### Save (multiple)
+`docker save -o <tarFileName> IMAGE [IMAGE ...]` 
+### Load (image)
+
+## Working with Containers
+### Export container file system to a tar
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTYzNDk5NTYwM119
+eyJoaXN0b3J5IjpbLTk4OTgwNjU5NV19
 -->
